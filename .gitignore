@@ -1,0 +1,29 @@
+# 构建产物
+build/
+app/build/
+*.apk
+*.aab
+*.ap_
+*.dex
+
+# Gradle
+.gradle/
+gradle-app.setting
+.gradletasknamecache
+
+# IDE
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+local.properties
+
+# 系统
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# 日志
+*.log
