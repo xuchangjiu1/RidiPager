@@ -303,49 +303,56 @@ class ReaderView @JvmOverloads constructor(
     // ==================== 翻页（统一接口） ====================
 
     /** @return true=成功翻页；false=已到边界 */
-    fun nextPage(): Boolean = when (mode) {
-        Mode.PDF -> {
-            val doc = pdf ?: return false
-            if (pdfPage < doc.pageCount - 1) {
-                pdfPage++; invalidate(); notifyPage(); true
-            } else false
+    fun nextPage(): Boolean {
+        return when (mode) {
+            Mode.PDF -> {
+                val doc = pdf
+                if (doc == null) false
+                else if (pdfPage < doc.pageCount - 1) {
+                    pdfPage++; invalidate(); notifyPage(); true
+                } else false
+            }
+            Mode.EPUB -> {
+                if (currentPage < pages.size - 1) {
+                    currentPage++; invalidate(); notifyPage(); true
+                } else if (chapterIndex < (book?.chapters?.size ?: 1) - 1) {
+                    loadChapter(chapterIndex + 1)
+                    true      // 自动进入下一章
+                } else false
+            }
+            Mode.TEXT -> {
+                if (currentPage < pages.size - 1) {
+                    currentPage++; invalidate(); notifyPage(); true
+                } else false
+            }
+            else -> false
         }
-        Mode.EPUB -> {
-            if (currentPage < pages.size - 1) {
-                currentPage++; invalidate(); notifyPage(); true
-            } else if (chapterIndex < (book?.chapters?.size ?: 1) - 1) {
-                loadChapter(chapterIndex + 1); true      // 自动进入下一章
-            } else false
-        }
-        Mode.TEXT -> {
-            if (currentPage < pages.size - 1) {
-                currentPage++; invalidate(); notifyPage(); true
-            } else false
-        }
-        else -> false
     }
 
-    fun prevPage(): Boolean = when (mode) {
-        Mode.PDF -> {
-            if (pdfPage > 0) {
-                pdfPage--; invalidate(); notifyPage(); true
-            } else false
+    fun prevPage(): Boolean {
+        return when (mode) {
+            Mode.PDF -> {
+                if (pdfPage > 0) {
+                    pdfPage--; invalidate(); notifyPage(); true
+                } else false
+            }
+            Mode.EPUB -> {
+                if (currentPage > 0) {
+                    currentPage--; invalidate(); notifyPage(); true
+                } else if (chapterIndex > 0) {
+                    loadChapter(chapterIndex - 1)
+                    currentPage = (pages.size - 1).coerceAtLeast(0)   // 跳到上一章末尾
+                    invalidate(); notifyPage()
+                    true
+                } else false
+            }
+            Mode.TEXT -> {
+                if (currentPage > 0) {
+                    currentPage--; invalidate(); notifyPage(); true
+                } else false
+            }
+            else -> false
         }
-        Mode.EPUB -> {
-            if (currentPage > 0) {
-                currentPage--; invalidate(); notifyPage(); true
-            } else if (chapterIndex > 0) {
-                loadChapter(chapterIndex - 1)
-                currentPage = (pages.size - 1).coerceAtLeast(0)   // 跳到上一章末尾
-                invalidate(); notifyPage(); true
-            } else false
-        }
-        Mode.TEXT -> {
-            if (currentPage > 0) {
-                currentPage--; invalidate(); notifyPage(); true
-            } else false
-        }
-        else -> false
     }
 
     // ==================== 状态查询 ====================
