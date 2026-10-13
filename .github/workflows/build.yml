@@ -25,9 +25,13 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # ---------- 3. 配置 Android SDK ----------
-      - name: 配置 Android SDK
-        uses: android-actions/setup-android@v3
+      # ---------- 3. Android SDK ----------
+      # ubuntu-latest runner 已预装 Android SDK（$ANDROID_HOME），无需再装
+      - name: 确认 Android SDK
+        run: |
+          echo "ANDROID_HOME=$ANDROID_HOME"
+          sdkmanager --version || true
+          ls "$ANDROID_HOME/platforms" || true
 
       # ---------- 4. 安装 Gradle（不依赖 gradle-wrapper.jar） ----------
       - name: 安装 Gradle 8.2
